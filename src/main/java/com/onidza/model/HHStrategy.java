@@ -99,7 +99,7 @@ public class HHStrategy implements Strategy {
                 vacancy.setCity(address);
                 vacancy.setTitle(title);
                 vacancy.setUrl(url);
-                vacancy.setSalary(Objects.requireNonNullElseGet(salary, () -> new Salary("", 0, "")));
+                vacancy.setSalary(Objects.requireNonNullElseGet(salary, () -> new Salary("", 0, "", false)));
                 vacancy.setCompanyName(name);
                 vacancy.setExperience(experience);
                 vacancy.setFormat(format);
@@ -132,15 +132,13 @@ public class HHStrategy implements Strategy {
 
         if (salaryStr.toLowerCase().contains("от") && numbers.size() == 1) {
             if (!salaryStr.contains("₽")) return null;
-            return new Salary("от", numbers.get(0), "₽");
+            return new Salary("от", numbers.get(0), "₽", false);
         } else if (salaryStr.toLowerCase().contains("до") && numbers.size() == 1) {
             if (!salaryStr.contains("₽")) return null;
-            return new Salary("до", numbers.get(0), "₽");
+            return new Salary("до", numbers.get(0), "₽", false);
         } else if (numbers.size() == 2) {
             if (!salaryStr.contains("₽")) return null;
-            Salary salary = new Salary("от " + numbers.get(0) + " до " + numbers.get(1), numbers.get(0), "₽");
-            salary.setRange(true);
-            return salary;
+            return new Salary("от " + numbers.get(0) + " до " + numbers.get(1), numbers.get(0), "₽", true);
         } else if (numbers.size() == 1){
             if (!salaryStr.contains("₽")) return null;
             return new Salary(numbers.get(0), "₽");
