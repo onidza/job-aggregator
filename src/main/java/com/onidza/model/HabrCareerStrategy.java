@@ -20,10 +20,7 @@ public class HabrCareerStrategy implements Strategy {
     @Override
     public List<Vacancy> getSortedBySalaryVacancies(String searchString) {
         return getWithoutSortedVacancies(searchString).stream()
-//                .filter(vacancy -> vacancy.getSalary().getValue() >= 70_000)
-//                .filter(vacancy -> !vacancy.getFormat().isEmpty())
                 .filter((vacancy -> !(vacancy.getSalary().getLabel() == null)))
-//                .filter(vacancy -> !vacancy.getTitle().contains("продаж"))
                 .sorted(Comparator.comparingInt(vacancy -> {
                     Salary s = vacancy.getSalary();
                     if ("-".equals(s.getLabel())) {

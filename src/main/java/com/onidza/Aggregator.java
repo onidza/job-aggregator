@@ -10,10 +10,10 @@ import com.onidza.view.View;
 public class Aggregator {
     public static void main(String[] args) {
         View view = new HtmlView();
-        Model model = new Model(view, new Provider(new HHStrategy()), new Provider(new HabrCareerStrategy()));
+        Model model = new Model(view, new Provider(new HHStrategy()));
         Controller controller = new Controller(model);
         view.setController(controller);
 
-        view.sortBySalary("java developer");
+        view.getVacancies("java developer");
     }
 }

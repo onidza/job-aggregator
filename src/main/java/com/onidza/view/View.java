@@ -8,6 +8,5 @@ import java.util.List;
 public interface View {
     void update(List<Vacancy> vacancies);
     void setController(Controller controller);
-    void withoutSorting(String city);
-    void sortBySalary(String city);
+    public void getVacancies(String vacancyName);
 }

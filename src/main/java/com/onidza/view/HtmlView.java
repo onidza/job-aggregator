@@ -29,12 +29,8 @@ public class HtmlView implements View {
         this.controller = controller;
     }
 
-    public void withoutSorting(String city) {
-        controller.withoutSorting(city);
-    }
-
-    public void sortBySalary(String city) {
-        controller.sortBySalary(city);
+    public void getVacancies(String vacancyName) {
+        controller.showVacancies(vacancyName, Controller.SortType.NONE);
     }
 
     private String getUpdatedFileContent(List<Vacancy> vacancies) {
