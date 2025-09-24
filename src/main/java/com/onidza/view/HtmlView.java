@@ -29,7 +29,7 @@ public class HtmlView implements View {
         this.controller = controller;
     }
 
-    public void getVacancies(String vacancyName) {
+    public void requestVacancies(String vacancyName) {
         controller.showVacancies(vacancyName, Controller.SortType.NONE);
     }
 

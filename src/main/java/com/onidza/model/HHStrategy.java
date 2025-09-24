@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -98,11 +99,10 @@ public class HHStrategy implements Strategy {
                 vacancy.setCity(address);
                 vacancy.setTitle(title);
                 vacancy.setUrl(url);
-                if(salary != null) vacancy.setSalary(salary);
+                vacancy.setSalary(Objects.requireNonNullElseGet(salary, () -> new Salary("", 0, "")));
                 vacancy.setCompanyName(name);
                 vacancy.setExperience(experience);
                 vacancy.setFormat(format);
-
                 vacancies.add(vacancy);
             }
             page++;

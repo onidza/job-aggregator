@@ -8,5 +8,5 @@ import java.util.List;
 public interface View {
     void update(List<Vacancy> vacancies);
     void setController(Controller controller);
-    public void getVacancies(String vacancyName);
+    void requestVacancies(String vacancyName);
 }

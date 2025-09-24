@@ -6,7 +6,7 @@ public class Vacancy {
     private String siteName;
 
     private String title;
-    private Salary salary = new Salary();
+    private Salary salary;
     private String city;
     private String companyName;
     private String url;

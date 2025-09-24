@@ -12,12 +12,6 @@ public class Salary {
         this.typeCurrency = typeCurrency;
     }
 
-    public Salary() {
-        this.label = "-";
-        this.value = 0;
-        this.typeCurrency = "";
-    }
-
     public Salary(String label, int salary, String typeCurrency) {
         this.label = label;
         this.value = salary;
@@ -46,14 +40,8 @@ public class Salary {
 
     @Override
     public String toString() {
-        if (value == 0) {
-            return label + " " + typeCurrency;
-        }
-
-        if (range) {
-            return label + " " + typeCurrency;
-        }
-
+        if (label == null && value != 0) return value + typeCurrency;
+        if (value == 0 || range) return label + " " + typeCurrency;
         return label + " " + value + typeCurrency;
     }
 
