@@ -1,93 +1,95 @@
 package com.onidza.view;
 
 import com.onidza.Controller;
+import com.onidza.vo.SortType;
 import com.onidza.vo.Vacancy;
+import lombok.Setter;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
 
 public class HtmlView implements View {
+
+    @Setter
     private Controller controller;
-    private final String filePath = "C:\\Users\\user\\IdeaProjects\\job-aggregator\\src\\main\\java\\com\\onidza\\view\\vacancies.html";
+    private static final String TEMPLATE_PATH = "/view/vacancies.html";
 
     @Override
     public void update(List<Vacancy> vacancies) {
         try {
-            String newContent = getUpdatedFileContent(vacancies);
+            String newContent = getUpdatedContent(vacancies);
             updateFile(newContent);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("Ошибка при обновлении списка вакансий.");
         }
     }
 
-    @Override
-    public void setController(Controller controller) {
-        this.controller = controller;
+    public void requestVacancies(String vacancyName, SortType sortType) {
+        controller.showVacancies(vacancyName, sortType);
     }
 
-    public void requestVacancies(String vacancyName) {
-        controller.showVacancies(vacancyName, Controller.SortType.NONE);
+    private Elements clearOldVacancies(Document document) {
+        Elements hiddenTemplate = document.getElementsByClass("template");
+        document.getElementsByClass("vacancy")
+                .stream()
+                .filter(el -> !el.hasClass("template"))
+                .forEach(Element::remove);
+        return hiddenTemplate;
     }
 
-    private String getUpdatedFileContent(List<Vacancy> vacancies) {
-        Document document = null;
-        try {
-            document = getDocument();
-            Elements hiddenTemplate = document.getElementsByClass("template");
+    private Element createVacancy(Vacancy vacancy, Element template) {
+        Element templateVacancy = template.clone();
+
+        Objects.requireNonNull(templateVacancy.select("[href]").first())
+                        .text(vacancy.getTitle())
+                        .attr("href", vacancy.getUrl());
+
+        Objects.requireNonNull(templateVacancy.getElementsByClass("city").first()).text(vacancy.getCity());
+        Objects.requireNonNull(templateVacancy.getElementsByClass("companyName").first()).text(vacancy.getCompanyName());
+        Objects.requireNonNull(templateVacancy.getElementsByClass("salary").first()).text(vacancy.getSalary().toString());
+        Objects.requireNonNull(templateVacancy.getElementsByClass("experience").first()).text(vacancy.getExperience());
+        Objects.requireNonNull(templateVacancy.getElementsByClass("format").first()).text(vacancy.getFormat());
+        return templateVacancy;
+    }
+
+    private void insertVacancies(Elements hiddenTemplate, Element vacancyElement) {
+        hiddenTemplate.before(vacancyElement.outerHtml());
+    }
+
+    private String getUpdatedContent(List<Vacancy> vacancies) {
+            Document document = getDocument();
+            if (document == null) return "Null error при получении контента";
+
+            Elements hiddenTemplate = clearOldVacancies(document);
             Element template = hiddenTemplate.clone().removeAttr("style").removeClass("template").get(0);
 
-            Elements prevVacancies = document.getElementsByClass("vacancy");
-            for (Element el : prevVacancies) {
-                if (!el.hasClass("template")) {
-                    el.remove();
-                }
-            }
-
             for (Vacancy vacancy : vacancies) {
-                Element templateVacancy = template.clone();
-
-                Element vacancyLink = templateVacancy.getElementsByAttribute("href").get(0);
-                vacancyLink.appendText(vacancy.getTitle());
-                vacancyLink.attr("href", vacancy.getUrl());
-
-                Element city = templateVacancy.getElementsByClass("city").get(0);
-                city.appendText(vacancy.getCity());
-
-                Element companyName = templateVacancy.getElementsByClass("companyName").get(0);
-                companyName.appendText(vacancy.getCompanyName());
-
-                Element salary = templateVacancy.getElementsByClass("salary").get(0);
-                salary.appendText(vacancy.getSalary().toString());
-
-                Element experience = templateVacancy.getElementsByClass("experience").get(0);
-                experience.appendText(vacancy.getExperience());
-
-                Element format = templateVacancy.getElementsByClass("format").get(0);
-                format.appendText(vacancy.getFormat());
-
-                hiddenTemplate.before(templateVacancy.outerHtml());
+                Element vanancyElement = createVacancy(vacancy, template);
+                insertVacancies(hiddenTemplate, vanancyElement);
             }
             return document.html();
+    }
+
+    private void updateFile(String content) throws IOException {
+        Path outputPath = Path.of("vacancies-filled.html");
+        Files.writeString(outputPath, content, StandardCharsets.UTF_8);
+    }
+
+    protected Document getDocument(){
+        try (InputStream inputStream = getClass().getResourceAsStream(TEMPLATE_PATH)) {
+            if (inputStream == null) throw new FileNotFoundException("Template not found:" + TEMPLATE_PATH);
+            return Jsoup.parse(inputStream, "UTF-8", "");
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Ошибка при создании вакансий.");
         }
-        return "Some exception occurred";
-    }
-
-    private void updateFile(String content) {
-        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath)))) {
-            writer.write(content);
-        } catch (IOException ignored) {
-
-        }
-    }
-
-    protected Document getDocument() throws IOException {
-        File file = new File(filePath);
-        return Jsoup.parse(file, "UTF-8", "hh.ru");
+        return null;
     }
 }

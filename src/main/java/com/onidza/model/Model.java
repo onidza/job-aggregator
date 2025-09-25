@@ -1,14 +1,15 @@
 package com.onidza.model;
 
 import com.onidza.view.View;
+import com.onidza.vo.SortType;
 import com.onidza.vo.Vacancy;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Model {
-    private View view;
-    private Provider[] providers;
+    private final View view;
+    private final Provider[] providers;
 
     public Model(View view, Provider...providers) {
         if (view == null || providers == null || providers.length == 0) {
@@ -18,18 +19,10 @@ public class Model {
         this.providers = providers;
     }
 
-    public void withoutSorting(String city) {
+    public void getListOfVacancies(String vacancyName, SortType sortType) {
         List<Vacancy> vacancies = new ArrayList<>();
         for (Provider provider : providers) {
-            vacancies.addAll(provider.getWithoutSortedVacancies(city));
-        }
-        view.update(vacancies);
-    }
-
-    public void sortBySalary(String city) {
-        List<Vacancy> vacancies = new ArrayList<>();
-        for (Provider provider : providers) {
-            vacancies.addAll(provider.getSortedBySalaryVacancies(city));
+            vacancies.addAll(provider.providerRequest(vacancyName, sortType));
         }
         view.update(vacancies);
     }
