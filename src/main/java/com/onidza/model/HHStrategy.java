@@ -29,7 +29,6 @@ public class HHStrategy implements Strategy {
 
     private List<Vacancy> getVacancyList(String searchString) {
         List<Vacancy> vacancies = new ArrayList<>();
-//        Random random = new Random();
         int page = 0;
         while (true) {
             Document document = null;
@@ -60,9 +59,6 @@ public class HHStrategy implements Strategy {
 
                 vacancies.add(fillVacancy(url, title, address, name, salaryStr, experience, format));
             }
-//            try {
-//                Thread.sleep(500 + random.nextInt(1500)); //имитация скроллинга, если отлетаешь как бот
-//            } catch (InterruptedException ignored) {}
             page++;
         }
         return vacancies;
@@ -118,16 +114,16 @@ public class HHStrategy implements Strategy {
         
         Salary salary;
         if (salaryStr.toLowerCase().contains("от") && numbers.size() == 1) {
-            if (isRuble(salaryStr)) return Optional.empty();;
+            if (isRuble(salaryStr)) return Optional.empty();
             salary = new Salary("от", numbers.get(0), RUB_SYMBOL, false);
         } else if (salaryStr.toLowerCase().contains("до") && numbers.size() == 1) {
-            if (isRuble(salaryStr)) return Optional.empty();;
+            if (isRuble(salaryStr)) return Optional.empty();
             salary = new Salary("до", numbers.get(0), RUB_SYMBOL, false);
         } else if (numbers.size() == 2) {
-            if (isRuble(salaryStr)) return Optional.empty();;
+            if (isRuble(salaryStr)) return Optional.empty();
             salary = new Salary("от " + numbers.get(0) + " до " + numbers.get(1), numbers.get(0), RUB_SYMBOL, true);
         } else if (numbers.size() == 1){
-            if (isRuble(salaryStr)) return Optional.empty();;
+            if (isRuble(salaryStr)) return Optional.empty();
             salary = new Salary(numbers.get(0), RUB_SYMBOL);
         } else {
             return Optional.empty();
