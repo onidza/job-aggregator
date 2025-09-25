@@ -11,8 +11,8 @@ import com.onidza.vo.SortType;
 public class Aggregator {
     public static void main(String[] args) {
         View view = new HtmlView();
-        Model model = new Model(view, new Provider(new HHStrategy()),new Provider(new HabrCareerStrategy()));
-        Controller controller = new Controller(model);
+        Model model = new Model(new Provider(new HHStrategy()), new Provider(new HabrCareerStrategy()));
+        Controller controller = new Controller(model, view);
         view.setController(controller);
         view.requestVacancies("java developer", SortType.SALARY);
     }

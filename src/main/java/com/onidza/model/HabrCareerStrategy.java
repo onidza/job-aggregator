@@ -27,6 +27,7 @@ public class HabrCareerStrategy extends AbstractStrategy {
 
             if (document == null) {
                 System.out.println("На странице " + page + " вакансий не найдено, заканчиваем цикл в " + this.getClass().getSimpleName());
+                break;
             }
 
             Elements vacanciesHtmlList = document.select("div.vacancy-card");
