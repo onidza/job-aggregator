@@ -5,35 +5,37 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class HHStrategy extends AbstractStrategy {
+    private static final Logger logger = LoggerFactory.getLogger(HHStrategy.class);
     private static final String URL_FORMAT  = "https://hh.ru/search/vacancy?text=%s&page=%d";
 
     protected List<Vacancy> getVacancyList(String searchString) {
         List<Vacancy> vacancies = new ArrayList<>();
         int page = 0;
         while (true) {
-            Document document = null;
-            try {
-                document = getDocument(searchString, page);
-            } catch (IOException e) {
-                System.out.println("Ошибка загрузки страницы " + page + ": " + e.getMessage() + " в " + this.getClass().getSimpleName());
-            }
-
+            Document document = getDocument(searchString, page);
             if (document == null) {
-                System.out.println("На странице " + page + " вакансий не найдено, заканчиваем цикл в " + this.getClass().getSimpleName());
+                logger.info("На странице {} вакансий не найдено, заканчиваем цикл в {}", page, this.getClass().getSimpleName());
                 break;
             }
 
             Elements vacanciesHtmlList = document.getElementsByAttributeValue("data-qa", "vacancy-serp__vacancy");
-            if (vacanciesHtmlList.isEmpty()) break;
+            if (vacanciesHtmlList.isEmpty()) {
+                logger.info("На странице {} не найдено элементов вакансий в {}.", page, this.getClass().getSimpleName());
+                break;
+            }
 
             for (Element element : vacanciesHtmlList) {
                 String url = parseUrl(element);
+                logger.debug("Найдена вакансия: {}", url);
+
                 String title = parseTitle(element);
                 String address = parseAddress(element);
                 String name = parseName(element);
@@ -50,12 +52,17 @@ public class HHStrategy extends AbstractStrategy {
         return vacancies;
     }
 
-    protected Document getDocument(String searchString, int page) throws IOException {
-        return Jsoup.connect(String.format(URL_FORMAT, searchString, page))
-                .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36")
-                .referrer("https://hh.ru/")
-                .timeout(10_000)
-                .get();
+    protected Document getDocument(String searchString, int page) {
+        try {
+            return Jsoup.connect(String.format(URL_FORMAT, searchString, page))
+                    .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36")
+                    .referrer("https://hh.ru/")
+                    .timeout(10_000)
+                    .get();
+        } catch (IOException e) {
+            logger.error("Ошибка загрузки страницы {} для {}: {} ", page, this.getClass().getSimpleName(), e.getMessage());
+        }
+        return null;
     }
 
     private String parseUrl(Element element) {
