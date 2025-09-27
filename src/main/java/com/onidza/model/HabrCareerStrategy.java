@@ -1,20 +1,19 @@
 package com.onidza.model;
 
 import com.onidza.vo.Vacancy;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+@Slf4j
 public class HabrCareerStrategy extends AbstractStrategy {
-    private static final Logger logger = LoggerFactory.getLogger(HabrCareerStrategy.class);
     private static final String URL_FORMAT  = "https://career.habr.com/vacancies?page=%d&q=%s";
 
     protected List<Vacancy> getVacancyList(String searchString) {
@@ -23,19 +22,19 @@ public class HabrCareerStrategy extends AbstractStrategy {
         while (true) {
             Document document = getDocument(searchString, page);
             if (document == null) {
-                logger.info("На странице {} вакансий не найдено, заканчиваем цикл в {}", page, this.getClass().getSimpleName());
+                log.info("На странице {} вакансий не найдено, заканчиваем цикл в {}", page, this.getClass().getSimpleName());
                 break;
             }
 
             Elements vacanciesHtmlList = document.select("div.vacancy-card");
             if (vacanciesHtmlList.isEmpty()) {
-                logger.info("На странице {} не найдено элементов вакансий в {}.", page, this.getClass().getSimpleName());
+                log.info("На странице {} не найдено элементов вакансий в {}.", page, this.getClass().getSimpleName());
                 break;
             }
 
             for (Element element : vacanciesHtmlList) {
                 String url = parseUrl(element);
-                logger.debug("Найдена вакансия: {}", url);
+                log.debug("Найдена вакансия: {}", url);
 
                 String title = parseTitle(element);
                 String address = parseAddress(element);
@@ -58,7 +57,7 @@ public class HabrCareerStrategy extends AbstractStrategy {
                     .timeout(10_000)
                     .get();
         } catch (IOException e) {
-            logger.error("Ошибка загрузки страницы {} для {}: {} ", page, this.getClass().getSimpleName(), e.getMessage());
+            log.error("Ошибка загрузки страницы {} для {}: {} ", page, this.getClass().getSimpleName(), e.getMessage());
         }
         return null;
     }

@@ -13,7 +13,6 @@ public class Controller {
     private final Model model;
     private final View view;
 
-
     public void showVacancies(String vacancyName, SortType sortType) {
         List<Vacancy> vacancies = model.getListOfVacancies(vacancyName, sortType);
         view.update(vacancies);
